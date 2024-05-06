@@ -32,7 +32,12 @@ using namespace torfs;
 
 Address::Address(const std::string& host){
 
+    // 'host' is string in format "<hostname>:<port>"
+
+    // So get hostname ...
     _hostname = host.substr(0, host.find(':'));
+
+    // ... and port
     _port = static_cast<port_t>(std::stoul(host.substr(host.find(':') + 1)));
 
 }
@@ -54,6 +59,7 @@ port_t Address::port() const {
 
 std::string Address::host() const {
 
+    // Combine hostname and port to "<hostname>:<port>"
     return utils::glue(_hostname, ':', _port);
 
 }
@@ -61,6 +67,7 @@ std::string Address::host() const {
 
 Address::operator bool() const {
 
+    // Return true if hostname isn't empty AND ports is other than 0
     return !_hostname.empty() && _port != 0;
 
 }
@@ -68,6 +75,7 @@ Address::operator bool() const {
 
 bool Address::operator==(const Address& compared) const {
 
+    // Compare hostname and port of both Address objects
     return (_hostname == compared._hostname) && (_port == compared._port);
 
 }
@@ -75,13 +83,14 @@ bool Address::operator==(const Address& compared) const {
 
 Address::type_t Address::type(const std::string& hostname){
 
+    // Regex rules
     static const std::regex ipv4_regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}$");
     static const std::regex ipv6_regex("^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
     static const std::regex domain_regex("^([a-zA-Z0-9-]+\\.){0,}[a-zA-Z0-9-]{1,}\\.[a-zA-Z]{2,}$");
 
+    // Test the hostname and return the hostname type: IPv4, IPv6, or domain
     if(std::regex_match(hostname, ipv4_regex)) return type_t::IPV4;
     else if(std::regex_match(hostname, ipv6_regex)) return type_t::IPV6;
-    //else if(std::regex_match(hostname, domain_regex)) return type_t::DOMAIN;
     else return type_t::DOMAIN;
 
 }

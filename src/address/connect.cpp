@@ -32,12 +32,14 @@ using namespace torfs;
 
 IOSocket Address::connect(const Address& host){
 
+    // We are operating on a copy of the address because we will be editing it
     Address temp = host;
 
+    // Get the hostname type
     Address::type_t type = Address::type(temp.hostname());
-
     if(type == UNKNOWN) throw std::runtime_error("unknown address family");
 
+    // If hostname is of type DOMAIN, we resolve it
     if(type == DOMAIN){
 
         temp = Address(Address::resolve(temp.hostname()), temp.port());
@@ -46,11 +48,13 @@ IOSocket Address::connect(const Address& host){
 
     }
 
+    // Create TCP socket
     socket_t sock = socket((type == IPV4) ? AF_INET : AF_INET6, SOCK_STREAM, 0);
 
     sockaddr_storage addr = {0};
     socklen_t sock_len;
 
+    // IPv4 procedure
     if(type == IPV4){
 
         sockaddr_in* ipv4 = reinterpret_cast<sockaddr_in*>(&addr);
@@ -63,6 +67,8 @@ IOSocket Address::connect(const Address& host){
         sock_len = sizeof(sockaddr_in);
     
     }
+
+    // IPv6 procedure
     else if(type == IPV6){
 
         sockaddr_in6* ipv6 = reinterpret_cast<sockaddr_in6*>(&addr);
@@ -81,10 +87,13 @@ IOSocket Address::connect(const Address& host){
 
     }
 
+    // Connect to remote
     if(::connect(sock, reinterpret_cast<sockaddr*>(&addr), sock_len) != 0) throw std::runtime_error("connect() error");
 
+    // Dump debug info
     utils::info(utils::glue("Connected: ", temp.host()));
 
+    // Return socket as new IOSocket object
     return IOSocket(sock);
 
 }
