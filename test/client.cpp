@@ -1,6 +1,7 @@
 #include <torfs/torfs.hpp>
 #include <torfs/address.hpp>
 #include <torfs/utils.hpp>
+#include <torfs/client.hpp>
 
 int main(){
 
@@ -8,14 +9,14 @@ int main(){
 
     torfs::utils::initialize();
 
-    const torfs::Address proxy("localhost", 9150);
-    const torfs::Address target("api.ipify.org", 80);
+    torfs::Client client;
+    client.connect("localhost:9090");
 
-    torfs::IOSocket google = torfs::Address::socks5_connect(proxy, target);
+    client.login("user", "password");
 
-    while(true){
+    for(const torfs::path_t& entry : client.ls()){
 
-        std::cout << google.reado<char>() << std::flush;
+        std::cout << entry << std::endl;
 
     }
 
